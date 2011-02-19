@@ -8,7 +8,12 @@ import (
 
 func main() {
 	http.HandleFunc("/style.css", styleServer)
-	err := widgets.Run(widgets.Text("Hello world!"))
+	err := widgets.Run(
+		widgets.Column(
+		widgets.Row(widgets.Text("A"), widgets.Text("B")),
+		widgets.Text("Hello world!"),
+		widgets.Text("Goodbye world!"),
+		))
 	if err != nil {
 		panic("ListenAndServe: " + err.String())
 	}

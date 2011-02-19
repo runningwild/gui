@@ -21,6 +21,14 @@ func Text(t string) Widget {
 	return &text{t}
 }
 
+func Column(widgets ...Widget) Widget {
+	return &column{widgets}
+}
+
+func Row(widgets ...Widget) Widget {
+	return &row{widgets}
+}
+
 func RunSeparate(w func() Widget) os.Error {
 	return websocket.RunSeparate("/", func() websocket.Handler {
 		return &widgetwrapper{w(), []func(string){}}
@@ -34,6 +42,30 @@ func Run(w Widget) os.Error {
 ///////////////////////////////////////
 // Everything below this is private! //
 ///////////////////////////////////////
+
+type column struct {
+	ws []Widget
+}
+func (c *column) html() string {
+	out := "<table>\n"
+	for _,w := range c.ws {
+		out += "<tr><td>" + w.html() + "</td></tr>\n"
+	}
+	out += "\n</table>"
+	return out
+}
+
+type row struct {
+	ws []Widget
+}
+func (c *row) html() string {
+	out := "<table><tr>\n"
+	for _,w := range c.ws {
+		out += "<td>" + w.html() + "</td>\n"
+	}
+	out += "\n</tr></table>"
+	return out
+}
 
 type text struct {
 	string
