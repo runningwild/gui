@@ -18,5 +18,9 @@ a GTK version (or native windows) of the same application with (close
 to?) no change in the source code of the application.
 
 So far, this framework is highly incomplete.  All I have are buttons
-and non-user-editable text.  If this README gets out of date, I may
-have more widget types implemented.
+and text.  If this README gets out of date, I may have more widget
+types implemented.
+
+The easiest way to run the example is to install gb, and then run it
+in the root directory.  Then you can type `bin/example` and point your
+browser to `http://localhost:12345`.
