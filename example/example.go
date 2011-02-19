@@ -8,9 +8,22 @@ import (
 
 func main() {
 	http.HandleFunc("/style.css", styleServer)
+	buttonA := widgets.Button("A")
+	buttonB := widgets.Button("B")
+	buttonA.OnClick(func() widgets.Refresh {
+		fmt.Println("I clicked on button A")
+		buttonB.SetText(buttonB.GetText() + buttonB.GetText())
+		return widgets.StillClean
+	})
+	buttonB.OnClick(func() widgets.Refresh {
+		fmt.Println("I clicked on button A")
+		t := buttonB.GetText()
+		buttonB.SetText(t[:len(t)/2+1])
+		return widgets.StillClean
+	})
 	err := widgets.Run(
 		widgets.Column(
-		widgets.Row(widgets.Button("A"), widgets.Button("B")),
+		widgets.Row(buttonA, buttonB),
 		widgets.Text("Hello world!"),
 		widgets.Text("Goodbye world!"),
 		))
