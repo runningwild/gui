@@ -25,12 +25,20 @@ func Button(t string) Widget {
 	return &button{t, <- NewId}
 }
 
+func Table(rows ...[]Widget) Widget {
+	return &table{rows}
+}
+
 func Column(widgets ...Widget) Widget {
-	return &column{widgets}
+	ws := make([][]Widget, len(widgets))
+	for i := range ws {
+		ws[i] = []Widget{widgets[i]}
+	}
+	return &table{ws}
 }
 
 func Row(widgets ...Widget) Widget {
-	return &row{widgets}
+	return &table{[][]Widget{widgets}}
 }
 
 func RunSeparate(w func() Widget) os.Error {
@@ -65,27 +73,19 @@ func init() {
 // Everything below this is private! //
 ///////////////////////////////////////
 
-type column struct {
-	ws []Widget
+type table struct {
+	ws [][]Widget
 }
-func (c *column) html() string {
+func (t *table) html() string {
 	out := "<table>\n"
-	for _,w := range c.ws {
-		out += "<tr><td>" + w.html() + "</td></tr>\n"
+	for _,r := range t.ws {
+		out += "  <tr>\n"
+		for _,w := range r {
+			out += "    <td>" + w.html() + "</td>\n"
+		}
+		out += "  </tr>\n"
 	}
-	out += "\n</table>"
-	return out
-}
-
-type row struct {
-	ws []Widget
-}
-func (c *row) html() string {
-	out := "<table><tr>\n"
-	for _,w := range c.ws {
-		out += "<td>" + w.html() + "</td>\n"
-	}
-	out += "\n</tr></table>"
+	out += "</table>\n"
 	return out
 }
 
