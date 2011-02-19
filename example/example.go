@@ -10,7 +10,7 @@ func main() {
 	http.HandleFunc("/style.css", styleServer)
 	err := widgets.Run(
 		widgets.Column(
-		widgets.Row(widgets.Text("A"), widgets.Text("B")),
+		widgets.Row(widgets.Button("A"), widgets.Button("B")),
 		widgets.Text("Hello world!"),
 		widgets.Text("Goodbye world!"),
 		))

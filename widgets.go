@@ -21,6 +21,10 @@ func Text(t string) Widget {
 	return &text{t}
 }
 
+func Button(t string) Widget {
+	return &button{t, <- NewId}
+}
+
 func Column(widgets ...Widget) Widget {
 	return &column{widgets}
 }
@@ -38,6 +42,24 @@ func RunSeparate(w func() Widget) os.Error {
 func Run(w Widget) os.Error {
 	return websocket.Run("/", &widgetwrapper{w, []func(string){}})
 }
+
+/////////////////////////////////////////
+// Here is the event-handling stuff... //
+/////////////////////////////////////////
+
+var NewId <-chan string
+func init() {
+	nid := make(chan string, 5)
+	go func() {
+		i := 0
+		for {
+			i++
+			nid <- fmt.Sprint(i)
+		}
+	}()
+	NewId = nid
+}
+
 
 ///////////////////////////////////////
 // Everything below this is private! //
@@ -72,6 +94,14 @@ type text struct {
 }
 func (dat *text) html() string {
 	return html.EscapeString(dat.string)
+}
+
+type button struct {
+	string
+	id string
+}
+func (dat *button) html() string {
+	return `<input type="submit" onclick="say('button-` + dat.string + dat.id + `')" value="` + html.EscapeString(dat.string) + `" />`
 }
 
 
