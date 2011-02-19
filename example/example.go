@@ -21,10 +21,17 @@ func main() {
 		buttonB.SetText(t[:len(t)/2+1])
 		return widgets.StillClean
 	})
+	name := widgets.EditText("Enter name here")
+	hello := widgets.Text("Hello world!")
+	name.OnChange(func() widgets.Refresh {
+		hello.SetText("Hello " + name.GetText() + "!")
+		return widgets.StillClean
+	})
 	err := widgets.Run(
 		widgets.Column(
 		widgets.Row(buttonA, buttonB),
-		widgets.Text("Hello world!"),
+		widgets.Row(widgets.Text("Name:"), name),
+		hello,
 		widgets.Text("Goodbye world!"),
 		))
 	if err != nil {

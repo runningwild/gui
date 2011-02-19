@@ -12,7 +12,7 @@ import (
 
 type Widget interface {
 	html() string
-	locate(id string) Widget
+	locate(id Id) Widget
 }
 
 func Empty() Widget {
@@ -22,6 +22,10 @@ func Empty() Widget {
 func Text(t string) HasText {
 	tt := text(t)
 	return &tt
+}
+
+func EditText(t string) HasChangingText {
+	return &edittext{text(t), <- NewId, nil}
 }
 
 func Button(t string) ClickableWithText {
@@ -64,6 +68,18 @@ type HasText interface {
 	GetText() string
 }
 
+type HasChangingText interface {
+	HasText
+	OnChange(Hook)
+	HandleChange() Refresh
+}
+
+type Changeable interface {
+	Widget
+	OnChange(Hook)
+	HandleChange() Refresh
+}
+
 type Clickable interface {
 	Widget
 	OnClick(Hook)
@@ -89,14 +105,15 @@ func (r Refresh) String() string {
 	return "StillClean"
 }
 
-var NewId <-chan string
+type Id string
+var NewId <-chan Id
 func init() {
-	nid := make(chan string, 5)
+	nid := make(chan Id, 5)
 	go func() {
 		i := 0
 		for {
 			i++
-			nid <- fmt.Sprint(i)
+			nid <- Id(fmt.Sprint(i))
 		}
 	}()
 	NewId = nid
@@ -122,7 +139,7 @@ func (t *table) html() string {
 	out += "</table>\n"
 	return out
 }
-func (t *table) locate(id string) Widget {
+func (t *table) locate(id Id) Widget {
 	for _,r := range t.ws {
 		for _,w := range r {
 			if ans := w.locate(id); ans != nil {
@@ -137,7 +154,7 @@ type text string
 func (dat *text) html() string {
 	return html.EscapeString(string(*dat))
 }
-func (*text) locate(id string) Widget {
+func (*text) locate(id Id) Widget {
 	return nil
 }
 func (b *text) GetText() string {
@@ -145,6 +162,37 @@ func (b *text) GetText() string {
 }
 func (b *text) SetText(newt string) {
 	*b = text(newt)
+}
+
+type edittext struct {
+	text
+	Id
+	onchange
+}
+func (dat *edittext) html() string {
+	h := `<input type="text" onchange="say('onchange:` + string(dat.Id) + ":" + string(dat.text) +
+		`:' + this.value)" value="` + dat.text.html() + `" />`
+	fmt.Println(h)
+	return h
+	return `<input type="text" onchange="say('onchange:` + string(dat.Id) + ":" + string(dat.text) +
+		`:' + this.value)" value="` + dat.text.html() + `" />`
+}
+func (w *edittext) locate(id Id) Widget {
+	if w.Id == id {
+		return w
+	}
+	return nil
+}
+
+type onchange Hook
+func (o *onchange) OnChange(h Hook) {
+	*o = onchange(h)
+}
+func (o *onchange) HandleChange() Refresh {
+	if *o == nil {
+		return StillClean
+	}
+	return (*o)()
 }
 
 type onclick Hook
@@ -160,15 +208,15 @@ func (o *onclick) HandleClick() Refresh {
 
 type button struct {
 	text
-	id string
+	Id
 	onclick
 }
 func (dat *button) html() string {
-	return `<input type="submit" onclick="say('onclick:` + dat.id + ":" + string(dat.text) + `')" value="` +
+	return `<input type="submit" onclick="say('onclick:` + string(dat.Id) + ":" + string(dat.text) + `')" value="` +
 		html.EscapeString(string(dat.text)) + `" />`
 }
-func (b *button) locate(id string) Widget {
-	if b.id == id {
+func (b *button) locate(id Id) Widget {
+	if b.Id == id {
 		return b
 	}
 	return nil
@@ -190,11 +238,20 @@ func (w *widgetwrapper) Handle(evt string) {
 	evts := strings.Split(evt, ":", -1)
 	switch evts[0] {
 	case "onclick":
-		clicked := w.w.locate(evts[1])
+		clicked := w.w.locate(Id(evts[1]))
 		if clicked != nil {
 			if clicked, ok := clicked.(Clickable); ok {
 				r := clicked.HandleClick()
 				fmt.Println("HandleClick gave", r)
+			}
+		}
+	case "onchange":
+		if len(evts) == 4 {
+			changed := w.w.locate(Id(evts[1]))
+			if changed, ok := changed.(HasChangingText); ok {
+				changed.SetText(evts[3])
+				r := changed.HandleChange()
+				fmt.Println("HandleChange gave", r)
 			}
 		}
 	}
