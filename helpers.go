@@ -51,14 +51,14 @@ func (o *ClickHandler) HandleClick() Refresh {
 }
 
 
-type boolthing bool
-func (b *boolthing) GetBool() bool {
+type BoolValue bool
+func (b *BoolValue) GetBool() bool {
 	return bool(*b)
 }
-func (b *boolthing) SetBool(x bool) {
-	*b = boolthing(x)
+func (b *BoolValue) SetBool(x bool) {
+	*b = BoolValue(x)
 }
-func (b *boolthing) Toggle() {
+func (b *BoolValue) Toggle() {
 	*b = ! *b
 }
 

@@ -24,7 +24,7 @@ func Button(t string) ClickableWithText {
 }
 
 func Checkbox() Bool {
-	c := &checkbox{false, <- newId, nil}
+	c := &checkbox{<- newId, false, nil}
 	c.OnChange(func() Refresh {
 		fmt.Println("I am toggling", c)
 		return NeedsRefresh
@@ -131,8 +131,8 @@ func (dat *button) html() string {
 }
 
 type checkbox struct {
-	boolthing
 	Id
+	BoolValue
 	ChangeHandler
 }
 func (dat *checkbox) html() string {
