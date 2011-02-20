@@ -32,6 +32,21 @@ func Button(t string) ClickableWithText {
 	return &button{text(t), <- NewId, nil}
 }
 
+func Checkbox() Bool {
+	c := &checkbox{false, <- NewId, nil, nil}
+	c.OnChange(func() Refresh {
+		c.Toggle()
+		fmt.Println("I am toggling", c)
+		return NeedsRefresh
+	})
+	c.OnClick(func() Refresh {
+		c.Toggle()
+		fmt.Println("I am toggling", c)
+		return NeedsRefresh
+	})
+	return c
+}
+
 func Table(rows ...[]Widget) Widget {
 	return &table{rows}
 }
@@ -78,6 +93,13 @@ type Changeable interface {
 	Widget
 	OnChange(Hook)
 	HandleChange() Refresh
+}
+
+type Bool interface {
+	Changeable
+	GetBool() bool
+	SetBool(bool)
+	Toggle()
 }
 
 type Clickable interface {
@@ -222,6 +244,40 @@ func (b *button) locate(id Id) Widget {
 	return nil
 }
 
+type boolthing bool
+func (b *boolthing) GetBool() bool {
+	return bool(*b)
+}
+func (b *boolthing) SetBool(x bool) {
+	*b = boolthing(x)
+}
+func (b *boolthing) Toggle() {
+	*b = ! *b
+}
+
+type checkbox struct {
+	boolthing
+	Id
+	onchange
+	onclick
+}
+func (dat *checkbox) html() string {
+	checked := ""
+	if dat.GetBool() {
+		checked = "checked='checked' "
+	}
+	h := `<input type="checkbox" onclick="say('onchange:` + string(dat.Id) + `')" ` + checked + `" />`
+	fmt.Println(h)
+	return h
+}
+func (b *checkbox) locate(id Id) Widget {
+	fmt.Println("Doing locate", id, "and I am", b.Id)
+	if b.Id == id {
+		return b
+	}
+	return nil
+}
+
 
 type widgetwrapper struct {
 	w Widget
@@ -246,13 +302,31 @@ func (w *widgetwrapper) Handle(evt string) {
 			}
 		}
 	case "onchange":
-		if len(evts) == 4 {
-			changed := w.w.locate(Id(evts[1]))
-			if changed, ok := changed.(HasChangingText); ok {
+		if len(evts) < 1 {
+			fmt.Println("A broken onchange!")
+			break
+		}
+		changed := w.w.locate(Id(evts[1]))
+		switch changed := changed.(type) {
+		case HasChangingText:
+			if len(evts) == 4 {
 				changed.SetText(evts[3])
 				r := changed.HandleChange()
 				fmt.Println("HandleChange gave", r)
+			} else {
+				fmt.Println("Ignoring a strange onchange text event with", len(evts), "events!")
 			}
+		case Bool:
+			if len(evts) == 2 {
+				fmt.Println("I got a nice event to toggle")
+				changed.Toggle()
+			} else {
+				fmt.Println("Ignoring a strange onchange text event with", len(evts), "events!")
+			}
+		case nil:
+			fmt.Println("There is no event with id", evts[1])
+		default:
+			fmt.Printf("I don't understand this event of type %t", changed)
 		}
 	}
 	// if evt == "First time" {

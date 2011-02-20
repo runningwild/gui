@@ -6,6 +6,14 @@ import (
 	"github.com/droundy/widgets"
 )
 
+// FIXME: There is no way to make the following return something that
+// is both a widgets.Bool and a widgets.HasText.
+func LabelledCheckbox(l string) widgets.Widget {
+	cb := widgets.Checkbox()
+	label := widgets.Text(l)
+	return widgets.Row(cb, label)
+}
+
 func main() {
 	http.HandleFunc("/style.css", styleServer)
 	buttonA := widgets.Button("A")
@@ -21,6 +29,7 @@ func main() {
 		buttonB.SetText(t[:len(t)/2+1])
 		return widgets.StillClean
 	})
+	iscool := widgets.Checkbox()
 	name := widgets.EditText("Enter name here")
 	hello := widgets.Text("Hello world!")
 	name.OnChange(func() widgets.Refresh {
@@ -29,6 +38,8 @@ func main() {
 	})
 	err := widgets.Run(
 		widgets.Column(
+		iscool,
+		LabelledCheckbox("testing"),
 		widgets.Row(buttonA, buttonB),
 		widgets.Row(widgets.Text("Name:"), name),
 		hello,
