@@ -3,7 +3,8 @@ package widgets
 
 type Widget interface {
 	html() string
-	locate(id Id) Widget
+	getId() Id
+	getChildren() []Widget
 }
 
 type HasText interface {

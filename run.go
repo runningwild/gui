@@ -21,6 +21,20 @@ func Run(w Widget) os.Error {
 }
 
 
+func Locate(id Id, w Widget) Widget {
+	if id == w.getId() {
+		return w
+	}
+	for _,w = range w.getChildren() {
+		out := Locate(id, w)
+		if out != nil {
+			return out
+		}
+	}
+	return nil
+}
+
+
 type widgetwrapper struct {
 	w Widget
 	sends []func(string)
@@ -36,7 +50,7 @@ func (w *widgetwrapper) Handle(evt string) {
 	evts := strings.Split(evt, ":", -1)
 	switch evts[0] {
 	case "onclick":
-		clicked := w.w.locate(Id(evts[1]))
+		clicked := Locate(Id(evts[1]), w.w)
 		if clicked != nil {
 			if clicked, ok := clicked.(Clickable); ok {
 				r := clicked.HandleClick()
@@ -48,7 +62,7 @@ func (w *widgetwrapper) Handle(evt string) {
 			fmt.Println("A broken onchange!")
 			break
 		}
-		changed := w.w.locate(Id(evts[1]))
+		changed := Locate(Id(evts[1]), w.w)
 		switch changed := changed.(type) {
 		case HasChangingText:
 			if len(evts) == 4 {

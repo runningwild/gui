@@ -12,20 +12,19 @@ func Empty() Widget {
 }
 
 func Text(t string) HasText {
-	tt := text(t)
-	return &tt
+	return &text{<-newId, t}
 }
 
 func EditText(t string) HasChangingText {
-	return &edittext{text(t), <- NewId, nil}
+	return &edittext{text{<-newId, t}, nil}
 }
 
 func Button(t string) ClickableWithText {
-	return &button{text(t), <- NewId, nil}
+	return &button{text{<-newId, t}, nil}
 }
 
 func Checkbox() Bool {
-	c := &checkbox{false, <- NewId, nil, nil}
+	c := &checkbox{false, <- newId, nil, nil}
 	c.OnChange(func() Refresh {
 		c.Toggle()
 		fmt.Println("I am toggling", c)
@@ -40,7 +39,7 @@ func Checkbox() Bool {
 }
 
 func Table(rows ...[]Widget) Widget {
-	return &table{rows}
+	return &table{<-newId, rows}
 }
 
 func Column(widgets ...Widget) Widget {
@@ -48,11 +47,11 @@ func Column(widgets ...Widget) Widget {
 	for i := range ws {
 		ws[i] = []Widget{widgets[i]}
 	}
-	return &table{ws}
+	return &table{<-newId, ws}
 }
 
 func Row(widgets ...Widget) Widget {
-	return &table{[][]Widget{widgets}}
+	return &table{<-newId, [][]Widget{widgets}}
 }
 
 /////////////////////////////////////////
@@ -73,26 +72,12 @@ func (r Refresh) String() string {
 	return "StillClean"
 }
 
-type Id string
-var NewId <-chan Id
-func init() {
-	nid := make(chan Id, 5)
-	go func() {
-		i := 0
-		for {
-			i++
-			nid <- Id(fmt.Sprint(i))
-		}
-	}()
-	NewId = nid
-}
-
-
 ///////////////////////////////////////
 // Everything below this is private! //
 ///////////////////////////////////////
 
 type table struct {
+	Id
 	ws [][]Widget
 }
 func (t *table) html() string {
@@ -107,98 +92,48 @@ func (t *table) html() string {
 	out += "</table>\n"
 	return out
 }
-func (t *table) locate(id Id) Widget {
-	for _,r := range t.ws {
-		for _,w := range r {
-			if ans := w.locate(id); ans != nil {
-				return ans
-			}
-		}
+func (t *table) getChildren() []Widget {
+	out := []Widget{}
+	for _,ws := range t.ws {
+		out = append(out, ws...)
 	}
-	return nil
+	return out
 }
 
-type text string
-func (dat *text) html() string {
-	return html.EscapeString(string(*dat))
+type text struct {
+	Id
+	string
 }
-func (*text) locate(id Id) Widget {
-	return nil
+func (dat *text) html() string {
+	return html.EscapeString(dat.string)
 }
 func (b *text) GetText() string {
-	return string(*b)
+	return b.string
 }
 func (b *text) SetText(newt string) {
-	*b = text(newt)
+	b.string = newt
 }
 
 type edittext struct {
 	text
-	Id
 	onchange
 }
 func (dat *edittext) html() string {
-	h := `<input type="text" onchange="say('onchange:` + string(dat.Id) + ":" + string(dat.text) +
+	h := `<input type="text" onchange="say('onchange:` + string(dat.getId()) + ":" + dat.GetText() +
 		`:' + this.value)" value="` + dat.text.html() + `" />`
 	fmt.Println(h)
 	return h
-	return `<input type="text" onchange="say('onchange:` + string(dat.Id) + ":" + string(dat.text) +
+	return `<input type="text" onchange="say('onchange:` + string(dat.getId()) + ":" + dat.GetText() +
 		`:' + this.value)" value="` + dat.text.html() + `" />`
-}
-func (w *edittext) locate(id Id) Widget {
-	if w.Id == id {
-		return w
-	}
-	return nil
-}
-
-type onchange Hook
-func (o *onchange) OnChange(h Hook) {
-	*o = onchange(h)
-}
-func (o *onchange) HandleChange() Refresh {
-	if *o == nil {
-		return StillClean
-	}
-	return (*o)()
-}
-
-type onclick Hook
-func (o *onclick) OnClick(h Hook) {
-	*o = onclick(h)
-}
-func (o *onclick) HandleClick() Refresh {
-	if *o == nil {
-		return StillClean
-	}
-	return (*o)()
 }
 
 type button struct {
 	text
-	Id
 	onclick
 }
 func (dat *button) html() string {
-	return `<input type="submit" onclick="say('onclick:` + string(dat.Id) + ":" + string(dat.text) + `')" value="` +
-		html.EscapeString(string(dat.text)) + `" />`
-}
-func (b *button) locate(id Id) Widget {
-	if b.Id == id {
-		return b
-	}
-	return nil
-}
-
-type boolthing bool
-func (b *boolthing) GetBool() bool {
-	return bool(*b)
-}
-func (b *boolthing) SetBool(x bool) {
-	*b = boolthing(x)
-}
-func (b *boolthing) Toggle() {
-	*b = ! *b
+	return `<input type="submit" onclick="say('onclick:` + string(dat.getId()) + ":" + dat.GetText() + `')" value="` +
+		html.EscapeString(dat.GetText()) + `" />`
 }
 
 type checkbox struct {
