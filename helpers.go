@@ -28,22 +28,22 @@ func (i *Id) getChildren() []Widget {
 	return []Widget{}
 }
 
-type onchange Hook
-func (o *onchange) OnChange(h Hook) {
-	*o = onchange(h)
+type ChangeHandler Hook
+func (o *ChangeHandler) OnChange(h Hook) {
+	*o = ChangeHandler(h)
 }
-func (o *onchange) HandleChange() Refresh {
+func (o *ChangeHandler) HandleChange() Refresh {
 	if *o == nil {
 		return StillClean
 	}
 	return (*o)()
 }
 
-type onclick Hook
-func (o *onclick) OnClick(h Hook) {
-	*o = onclick(h)
+type ClickHandler Hook
+func (o *ClickHandler) OnClick(h Hook) {
+	*o = ClickHandler(h)
 }
-func (o *onclick) HandleClick() Refresh {
+func (o *ClickHandler) HandleClick() Refresh {
 	if *o == nil {
 		return StillClean
 	}

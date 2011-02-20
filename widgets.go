@@ -24,14 +24,8 @@ func Button(t string) ClickableWithText {
 }
 
 func Checkbox() Bool {
-	c := &checkbox{false, <- newId, nil, nil}
+	c := &checkbox{false, <- newId, nil}
 	c.OnChange(func() Refresh {
-		c.Toggle()
-		fmt.Println("I am toggling", c)
-		return NeedsRefresh
-	})
-	c.OnClick(func() Refresh {
-		c.Toggle()
 		fmt.Println("I am toggling", c)
 		return NeedsRefresh
 	})
@@ -116,7 +110,7 @@ func (b *text) SetText(newt string) {
 
 type edittext struct {
 	text
-	onchange
+	ChangeHandler
 }
 func (dat *edittext) html() string {
 	h := `<input type="text" onchange="say('onchange:` + string(dat.getId()) + ":" + dat.GetText() +
@@ -129,7 +123,7 @@ func (dat *edittext) html() string {
 
 type button struct {
 	text
-	onclick
+	ClickHandler
 }
 func (dat *button) html() string {
 	return `<input type="submit" onclick="say('onclick:` + string(dat.getId()) + ":" + dat.GetText() + `')" value="` +
@@ -139,15 +133,14 @@ func (dat *button) html() string {
 type checkbox struct {
 	boolthing
 	Id
-	onchange
-	onclick
+	ChangeHandler
 }
 func (dat *checkbox) html() string {
 	checked := ""
 	if dat.GetBool() {
 		checked = "checked='checked' "
 	}
-	h := `<input type="checkbox" onclick="say('onchange:` + string(dat.Id) + `')" ` + checked + `" />`
+	h := `<input type="checkbox" onchange="say('onchange:` + string(dat.Id) + `')" ` + checked + `" />`
 	fmt.Println(h)
 	return h
 }

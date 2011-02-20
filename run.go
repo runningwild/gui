@@ -76,6 +76,8 @@ func (w *widgetwrapper) Handle(evt string) {
 			if len(evts) == 2 {
 				fmt.Println("I got a nice event to toggle")
 				changed.Toggle()
+				r := changed.HandleChange()
+				fmt.Println("HandleChange gave", r)
 			} else {
 				fmt.Println("Ignoring a strange onchange text event with", len(evts), "events!")
 			}
