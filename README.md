@@ -24,3 +24,44 @@ types implemented.
 The easiest way to run the example is to install gb, and then run it
 in the root directory.  Then you can type `bin/example` and point your
 browser to `http://localhost:12345`.
+
+
+What I would like to achieve
+============================
+
+The idea is to create a widget library that is extensible in the
+following senses:
+
+ - Users can create new high-level widgets without modifying the
+   widget library itself.  As much as possible of the widget library
+   itself should actually be created with the user-level interface, to
+   ensure that it is both robust and easy to use.
+ 
+ - Implementation will not be exposed to users, so the underlying GUI
+   can be changed (e.g. from web-based to GTK-based, or from one
+   web-based approach to another) without any changes to high-level
+   (e.g. user-created) widgets.
+
+ - User-created widgets can achieve anything that can be achieved with
+   native widgets.  E.g. if there is a native color-selector, then you
+   should be able to create an equivalent color-selector on your own
+   (for instance if you wanted to have a color selector that only
+   allowed colors that would be visible against a particular background).
+   
+ - There is a minimum of boilerplate required to create a new
+   high-level widget.
+
+ - The API is go-like:  e.g. interfaces are used to distinguish
+   between different sorts of objects, e.g. those that can be clicked
+   and those that have text that can be set.
+
+
+I'm not sure how to achieve these goals.  The use of interfaces is
+pretty obvious, but how do we enable easy extension, and hiding of
+implementation details? An obvious way to hide implementation details
+is to put the implementation into a hidden method in the interface.
+That leaves the question of how users will create new widgets.  By
+hiding the implementation, users are forced to create new widgets
+using exported functions or types.  But if we hide the data members of
+our raw data types, it becomes hard for users to embed these in their
+own types.
