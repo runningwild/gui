@@ -55,7 +55,6 @@ following senses:
    between different sorts of objects, e.g. those that can be clicked
    and those that have text that can be set.
 
-
 I'm not sure how to achieve these goals.  The use of interfaces is
 pretty obvious, but how do we enable easy extension, and hiding of
 implementation details? An obvious way to hide implementation details
