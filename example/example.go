@@ -18,6 +18,10 @@ func LabelledCheckbox(l string) interface { widgets.Widget; widgets.String; widg
 	cb := widgets.Checkbox()
 	label := widgets.Text(l)
 	table := widgets.Row(cb, label)
+	label.OnClick(func() widgets.Refresh {
+		cb.Toggle()
+		return cb.HandleChange()
+	})
 	out := labelledcheckbox{ table, label, cb, cb }
 	return &out
 }

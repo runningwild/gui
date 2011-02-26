@@ -11,16 +11,16 @@ func Empty() Widget {
 	return Text("")
 }
 
-func Text(t string) interface { Widget; String } {
-	return &text{<-newId, t}
+func Text(t string) interface { Widget; String; Clickable } {
+	return &text{<-newId, t, nil}
 }
 
 func EditText(t string) interface { Widget; Changeable; String } {
-	return &edittext{text{<-newId, t}, nil}
+	return &edittext{text{<-newId, t, nil}, nil}
 }
 
 func Button(t string) interface { Widget; Clickable; String } {
-	return &button{text{<-newId, t}, nil}
+	return &button{text{<-newId, t, nil}, nil}
 }
 
 func Checkbox() interface { Widget; Changeable; Bool } {
@@ -97,9 +97,11 @@ func (t *table) Private__getChildren() []Widget {
 type text struct {
 	Id
 	string
+	ClickHandler
 }
 func (dat *text) Private__html() string {
-	return html.EscapeString(dat.string)
+	return `<span onclick="say('onclick:` + string(dat.Private__getId()) + ":" +
+		dat.GetString() + `')">` + html.EscapeString(dat.string) + `</span>`
 }
 func (b *text) GetString() string {
 	return b.string
