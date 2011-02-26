@@ -8,10 +8,17 @@ import (
 
 // FIXME: There is no way to make the following return something that
 // is both a widgets.Bool and a widgets.HasText.
-func LabelledCheckbox(l string) widgets.Widget {
+type labelledcheckbox struct {
+	widgets.Widget
+	widgets.TextEcho
+	widgets.BoolEcho
+}
+func LabelledCheckbox(l string) interface { widgets.Bool; widgets.OnlyText } {
 	cb := widgets.Checkbox()
 	label := widgets.Text(l)
-	return widgets.Row(cb, label)
+	table := widgets.Row(cb, label)
+	out := labelledcheckbox{ table, widgets.TextEcho{label}, widgets.BoolEcho{cb} }
+	return &out
 }
 
 func main() {
@@ -36,10 +43,20 @@ func main() {
 		hello.SetText("Hello " + name.GetText() + "!")
 		return widgets.StillClean
 	})
+	testing_checkbox := LabelledCheckbox("testing")
+	testing_checkbox.OnChange(func() widgets.Refresh {
+		fmt.Println("Hello world")
+		if testing_checkbox.GetBool() {
+			testing_checkbox.SetText("this test is currently true")
+		} else {
+			testing_checkbox.SetText("this test is now false")
+		}
+		return widgets.NeedsRefresh
+	})
 	err := widgets.Run(
 		widgets.Column(
 		iscool,
-		LabelledCheckbox("testing"),
+		testing_checkbox,
 		widgets.Row(buttonA, buttonB),
 		widgets.Row(widgets.Text("Name:"), name),
 		hello,

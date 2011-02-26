@@ -74,19 +74,19 @@ type table struct {
 	Id
 	ws [][]Widget
 }
-func (t *table) html() string {
+func (t *table) Private__html() string {
 	out := "<table>\n"
 	for _,r := range t.ws {
 		out += "  <tr>\n"
 		for _,w := range r {
-			out += "    <td>" + w.html() + "</td>\n"
+			out += "    <td>" + w.Private__html() + "</td>\n"
 		}
 		out += "  </tr>\n"
 	}
 	out += "</table>\n"
 	return out
 }
-func (t *table) getChildren() []Widget {
+func (t *table) Private__getChildren() []Widget {
 	out := []Widget{}
 	for _,ws := range t.ws {
 		out = append(out, ws...)
@@ -98,7 +98,7 @@ type text struct {
 	Id
 	string
 }
-func (dat *text) html() string {
+func (dat *text) Private__html() string {
 	return html.EscapeString(dat.string)
 }
 func (b *text) GetText() string {
@@ -112,21 +112,21 @@ type edittext struct {
 	text
 	ChangeHandler
 }
-func (dat *edittext) html() string {
-	h := `<input type="text" onchange="say('onchange:` + string(dat.getId()) + ":" + dat.GetText() +
-		`:' + this.value)" value="` + dat.text.html() + `" />`
+func (dat *edittext) Private__html() string {
+	h := `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetText() +
+		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
 	fmt.Println(h)
 	return h
-	return `<input type="text" onchange="say('onchange:` + string(dat.getId()) + ":" + dat.GetText() +
-		`:' + this.value)" value="` + dat.text.html() + `" />`
+	return `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetText() +
+		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
 }
 
 type button struct {
 	text
 	ClickHandler
 }
-func (dat *button) html() string {
-	return `<input type="submit" onclick="say('onclick:` + string(dat.getId()) + ":" + dat.GetText() + `')" value="` +
+func (dat *button) Private__html() string {
+	return `<input type="submit" onclick="say('onclick:` + string(dat.Private__getId()) + ":" + dat.GetText() + `')" value="` +
 		html.EscapeString(dat.GetText()) + `" />`
 }
 
@@ -135,7 +135,7 @@ type checkbox struct {
 	BoolValue
 	ChangeHandler
 }
-func (dat *checkbox) html() string {
+func (dat *checkbox) Private__html() string {
 	checked := ""
 	if dat.GetBool() {
 		checked = "checked='checked' "

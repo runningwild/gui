@@ -2,13 +2,18 @@ package widgets
 
 
 type Widget interface {
-	html() string
-	getId() Id
-	getChildren() []Widget
+	Private__html() string
+	Private__getId() Id
+	Private__getChildren() []Widget
 }
 
 type HasText interface {
 	Widget
+	SetText(string)
+	GetText() string
+}
+
+type OnlyText interface {
 	SetText(string)
 	GetText() string
 }

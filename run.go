@@ -22,10 +22,10 @@ func Run(w Widget) os.Error {
 
 
 func Locate(id Id, w Widget) Widget {
-	if id == w.getId() {
+	if id == w.Private__getId() {
 		return w
 	}
-	for _,w = range w.getChildren() {
+	for _,w = range w.Private__getChildren() {
 		out := Locate(id, w)
 		if out != nil {
 			return out
@@ -97,7 +97,7 @@ func (w *widgetwrapper) Handle(evt string) {
 	// 	return
 	// }
 	out := `<h3> Event is ` + evt + "</h3>\n"
-	out += w.w.html()
+	out += w.w.Private__html()
 	for _,send := range w.sends {
 		send(out)
 	}
