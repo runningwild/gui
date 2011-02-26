@@ -73,33 +73,3 @@ func (b *BoolValue) SetBool(x bool) {
 func (b *BoolValue) Toggle() {
 	*b = ! *b
 }
-
-type BoolEcho struct {
-	Bool Bool // this enables just the boolean portion
-}
-func (b *BoolEcho) GetBool() bool {
-	return b.Bool.GetBool()
-}
-func (b *BoolEcho) SetBool(x bool) {
-	b.Bool.SetBool(x)
-}
-func (b *BoolEcho) Toggle() {
-	b.Bool.Toggle()
-}
-func (o *BoolEcho) OnChange(h Hook) {
-	o.Bool.OnChange(h)
-}
-func (o *BoolEcho) HandleChange() Refresh {
-	return o.Bool.HandleChange()
-}
-
-
-type TextEcho struct {
-	Text HasText
-}
-func (t *TextEcho) SetText(s string) {
-	t.Text.SetText(s)
-}
-func (t *TextEcho) GetText() string {
-	return t.Text.GetText()
-}

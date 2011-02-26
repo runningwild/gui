@@ -10,14 +10,15 @@ import (
 // is both a widgets.Bool and a widgets.HasText.
 type labelledcheckbox struct {
 	widgets.Widget
-	widgets.TextEcho
-	widgets.BoolEcho
+	widgets.String
+	widgets.Changeable
+	widgets.Bool
 }
-func LabelledCheckbox(l string) interface { widgets.Bool; widgets.OnlyText } {
+func LabelledCheckbox(l string) interface { widgets.Widget; widgets.String; widgets.Changeable; widgets.Bool } {
 	cb := widgets.Checkbox()
 	label := widgets.Text(l)
 	table := widgets.Row(cb, label)
-	out := labelledcheckbox{ table, widgets.TextEcho{label}, widgets.BoolEcho{cb} }
+	out := labelledcheckbox{ table, label, cb, cb }
 	return &out
 }
 
@@ -27,29 +28,29 @@ func main() {
 	buttonB := widgets.Button("B")
 	buttonA.OnClick(func() widgets.Refresh {
 		fmt.Println("I clicked on button A")
-		buttonB.SetText(buttonB.GetText() + buttonB.GetText())
+		buttonB.SetString(buttonB.GetString() + buttonB.GetString())
 		return widgets.StillClean
 	})
 	buttonB.OnClick(func() widgets.Refresh {
 		fmt.Println("I clicked on button A")
-		t := buttonB.GetText()
-		buttonB.SetText(t[:len(t)/2+1])
+		t := buttonB.GetString()
+		buttonB.SetString(t[:len(t)/2+1])
 		return widgets.StillClean
 	})
 	iscool := widgets.Checkbox()
 	name := widgets.EditText("Enter name here")
 	hello := widgets.Text("Hello world!")
 	name.OnChange(func() widgets.Refresh {
-		hello.SetText("Hello " + name.GetText() + "!")
+		hello.SetString("Hello " + name.GetString() + "!")
 		return widgets.StillClean
 	})
 	testing_checkbox := LabelledCheckbox("testing")
 	testing_checkbox.OnChange(func() widgets.Refresh {
 		fmt.Println("Hello world")
 		if testing_checkbox.GetBool() {
-			testing_checkbox.SetText("this test is currently true")
+			testing_checkbox.SetString("this test is currently true")
 		} else {
-			testing_checkbox.SetText("this test is now false")
+			testing_checkbox.SetString("this test is now false")
 		}
 		return widgets.NeedsRefresh
 	})

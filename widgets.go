@@ -11,19 +11,19 @@ func Empty() Widget {
 	return Text("")
 }
 
-func Text(t string) HasText {
+func Text(t string) interface { Widget; String } {
 	return &text{<-newId, t}
 }
 
-func EditText(t string) HasChangingText {
+func EditText(t string) interface { Widget; Changeable; String } {
 	return &edittext{text{<-newId, t}, nil}
 }
 
-func Button(t string) ClickableWithText {
+func Button(t string) interface { Widget; Clickable; String } {
 	return &button{text{<-newId, t}, nil}
 }
 
-func Checkbox() Bool {
+func Checkbox() interface { Widget; Changeable; Bool } {
 	c := &checkbox{<- newId, false, nil}
 	c.OnChange(func() Refresh {
 		fmt.Println("I am toggling", c)
@@ -101,10 +101,10 @@ type text struct {
 func (dat *text) Private__html() string {
 	return html.EscapeString(dat.string)
 }
-func (b *text) GetText() string {
+func (b *text) GetString() string {
 	return b.string
 }
-func (b *text) SetText(newt string) {
+func (b *text) SetString(newt string) {
 	b.string = newt
 }
 
@@ -113,11 +113,11 @@ type edittext struct {
 	ChangeHandler
 }
 func (dat *edittext) Private__html() string {
-	h := `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetText() +
+	h := `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetString() +
 		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
 	fmt.Println(h)
 	return h
-	return `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetText() +
+	return `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetString() +
 		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
 }
 
@@ -126,8 +126,8 @@ type button struct {
 	ClickHandler
 }
 func (dat *button) Private__html() string {
-	return `<input type="submit" onclick="say('onclick:` + string(dat.Private__getId()) + ":" + dat.GetText() + `')" value="` +
-		html.EscapeString(dat.GetText()) + `" />`
+	return `<input type="submit" onclick="say('onclick:` + string(dat.Private__getId()) + ":" + dat.GetString() + `')" value="` +
+		html.EscapeString(dat.GetString()) + `" />`
 }
 
 type checkbox struct {
