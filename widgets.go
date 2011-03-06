@@ -116,8 +116,8 @@ type edittext struct {
 }
 func (dat *edittext) Private__html() string {
 	h := `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetString() +
-		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
-	fmt.Println(h)
+		`:' + this.value)" value="` + html.EscapeString(dat.text.GetString()) + `" />`
+	//fmt.Println(h)
 	return h
 	return `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetString() +
 		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
@@ -143,14 +143,102 @@ func (dat *checkbox) Private__html() string {
 		checked = "checked='checked' "
 	}
 	h := `<input type="checkbox" onchange="say('onchange:` + string(dat.Id) + `')" ` + checked + `" />`
-	fmt.Println(h)
+	//fmt.Println(h)
 	return h
 }
-func (b *checkbox) locate(id Id) Widget {
-	fmt.Println("Doing locate", id, "and I am", b.Id)
-	if b.Id == id {
-		return b
-	}
-	return nil
+
+func RadioButton(v string) interface { Widget; Changeable; Bool; String } {
+	out := &radiobutton{ text{ <-newId, v, nil }, false, nil, nil }
+	out.OnChange(func() Refresh {
+		fmt.Println("I am toggling", out)
+		return NeedsRefresh
+	})
+	out.OnClick(func() Refresh {
+		out.Toggle()
+		return out.HandleChange()
+	})
+	return out
 }
 
+type radiobutton struct {
+	text
+	BoolValue
+	ChangeHandler
+	ClickHandler
+}
+func (dat *radiobutton) Private__html() string {
+	checked := ""
+	if dat.GetBool() {
+		checked = " checked='checked' "
+	}
+	return `<input type="radio" onchange="say('onchange:` + string(dat.Private__getId()) + `')" value="` +
+		html.EscapeString(dat.GetString()) + `"` + checked +
+		`/><span onclick="say('onclick:` + string(dat.Private__getId()) + ":" +
+		dat.GetString() + `')">` + html.EscapeString(dat.string) + `</span>`
+}
+
+func RadioGroup(butts... interface{ Changeable; Bool; String }) interface { String; Changeable } {
+	out := radiogroup{ butts, nil }
+	numselected := 0
+	for i := range butts {
+		b := butts[i]
+		if b.GetBool() {
+			numselected += 1
+		}
+		b.OnChange(func () Refresh {
+			bval := b.GetBool()
+			for _,b2 := range out.buttons {
+				if b2.GetString() != b.GetString() {
+					b2.SetBool(!bval)
+				}
+			}
+			out.HandleChange()
+			return NeedsRefresh
+		})
+	}
+	for _,b := range out.buttons {
+		if b.GetBool() {
+			numselected -= 1
+		}
+		if numselected == 0 {
+			b.SetBool(true)
+			numselected -= 1
+		} else {
+			b.SetBool(false)
+		}
+	}
+	return &out
+}
+
+type radiogroup struct {
+	buttons []interface{ Changeable; Bool; String }
+	ChangeHandler
+}
+
+func (dat *radiogroup) GetString() string {
+	for _,b := range dat.buttons {
+		if b.GetBool() {
+			return b.GetString();
+		}
+	}
+	panic("Bug: radio group should always have one button selected!")
+}
+
+func (dat *radiogroup) SetString(v string) {
+	foundstring := false
+	for _,b := range dat.buttons {
+		if b.GetString() == v {
+			foundstring = true
+		}
+	}
+	if foundstring == false {
+		panic("Cannot SetString to "+v+" in radio group:  no such option!")
+	}
+	for _,b := range dat.buttons {
+		if b.GetString() == v {
+			b.SetBool(true)
+		} else {
+			b.SetBool(false)
+		}
+	}
+}

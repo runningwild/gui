@@ -64,18 +64,18 @@ func (w *widgetwrapper) Handle(evt string) {
 		}
 		changed := Locate(Id(evts[1]), w.w)
 		switch changed := changed.(type) {
-		case interface { Changeable; String }:
-			if len(evts) == 4 {
-				changed.SetString(evts[3])
+		case interface { Changeable; Bool }:
+			if len(evts) == 2 {
+				fmt.Println("I got a nice event to toggle")
+				changed.Toggle()
 				r := changed.HandleChange()
 				fmt.Println("HandleChange gave", r)
 			} else {
 				fmt.Println("Ignoring a strange onchange text event with", len(evts), "events!")
 			}
-		case interface { Changeable; Bool }:
-			if len(evts) == 2 {
-				fmt.Println("I got a nice event to toggle")
-				changed.Toggle()
+		case interface { Changeable; String }:
+			if len(evts) == 4 {
+				changed.SetString(evts[3])
 				r := changed.HandleChange()
 				fmt.Println("HandleChange gave", r)
 			} else {

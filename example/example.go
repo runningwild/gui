@@ -26,6 +26,26 @@ func LabelledCheckbox(l string) interface { widgets.Widget; widgets.String; widg
 	return &out
 }
 
+type radiobuttons struct {
+	widgets.Widget
+	widgets.String
+	widgets.Changeable
+}
+	
+func RadioButtons(vs... string) interface{ widgets.Widget; widgets.String; widgets.Changeable } {
+	var bs []interface{ widgets.Changeable; widgets.Bool; widgets.String }
+	var ws []widgets.Widget
+	for _,v := range vs {
+		b := widgets.RadioButton(v)
+		bs = append(bs, b)
+		ws = append(ws, b)
+	}
+	col := widgets.Column(ws...)
+	grp := widgets.RadioGroup(bs...)
+	return &radiobuttons{ col, grp, grp }
+}
+
+
 func main() {
 	http.HandleFunc("/style.css", styleServer)
 	buttonA := widgets.Button("A")
@@ -58,6 +78,15 @@ func main() {
 		}
 		return widgets.NeedsRefresh
 	})
+
+	// Now let's test out a set of radio buttons
+	radio := RadioButtons("apples", "lemons", "oranges", "pears")
+	radio_report := widgets.Text("I like to eat tasty fruit")
+	radio.OnChange(func() widgets.Refresh {
+		radio_report.SetString("I like to eat " + radio.GetString())
+		return widgets.NeedsRefresh
+	})
+
 	err := widgets.Run(
 		widgets.Column(
 		iscool,
@@ -66,6 +95,8 @@ func main() {
 		widgets.Row(widgets.Text("Name:"), name),
 		hello,
 		widgets.Text("Goodbye world!"),
+		radio,
+		radio_report,
 		))
 	if err != nil {
 		panic("ListenAndServe: " + err.String())
