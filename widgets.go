@@ -242,3 +242,42 @@ func (dat *radiogroup) SetString(v string) {
 		}
 	}
 }
+
+func Menu(opts... string) interface { Widget; String; Changeable } {
+	return &menu{ <-newId, opts, 0, nil }
+}
+
+type menu struct {
+	Id
+	options []string
+	selected int
+	ChangeHandler
+}
+
+func (m *menu) Private__html() string {
+	out := `<select onchange="say('onchange:` + string(m.Private__getId()) + ":" + m.GetString() +
+		`:' + this.value)" value="` + html.EscapeString(m.GetString()) + `" />`
+	for i,v := range m.options {
+		if i == m.selected {
+			out += "\n<option value=\"" + v + `" selected='selected'>` + v + "</option>"
+		} else {
+			out += "\n<option value=\"" + v + `">` + v + "</option>"
+		}
+	}
+	return out + "\n</select>"
+}
+
+func (m *menu) GetString() string {
+	if m.selected >= 0 && m.selected < len(m.options) {
+		return m.options[m.selected]
+	}
+	return ""
+}
+
+func (m *menu) SetString(v string) {
+	for i,s := range m.options {
+		if s == v {
+			m.selected = i
+		}
+	}
+}

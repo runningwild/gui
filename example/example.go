@@ -82,9 +82,17 @@ func main() {
 	// Now let's test out a set of radio buttons
 	radio := RadioButtons("apples", "lemons", "oranges", "pears")
 	radio_report := widgets.Text("I like to eat tasty fruit")
+	menu := widgets.Menu("apples", "lemons", "oranges", "pears")
 	radio.OnChange(func() widgets.Refresh {
+		menu.SetString(radio.GetString());
 		radio_report.SetString("I like to eat " + radio.GetString())
 		return widgets.NeedsRefresh
+	})
+
+	menu.OnChange(func() widgets.Refresh {
+		radio.SetString(menu.GetString())
+		radio_report.SetString("I like to eat " + radio.GetString())
+		return radio.HandleChange()
 	})
 
 	err := widgets.Run(
@@ -97,6 +105,7 @@ func main() {
 		widgets.Text("Goodbye world!"),
 		radio,
 		radio_report,
+		menu,
 		))
 	if err != nil {
 		panic("ListenAndServe: " + err.String())
