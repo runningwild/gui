@@ -1,10 +1,10 @@
-package widgets
+package gui
 
 import (
 	"os"
 	"fmt"
 	"strings"
-	"github.com/droundy/widgets/websocket"
+	"github.com/droundy/gui/websocket"
 )
 
 // This file implements the code to actually interface with

@@ -1,6 +1,6 @@
-//target:github.com/droundy/widgets
+//target:github.com/droundy/gui
 
-package widgets
+package gui
 
 import (
 	"fmt"
@@ -36,16 +36,16 @@ func Table(rows ...[]Widget) Widget {
 	return &table{<-newId, rows}
 }
 
-func Column(widgets ...Widget) Widget {
-	ws := make([][]Widget, len(widgets))
+func Column(gui ...Widget) Widget {
+	ws := make([][]Widget, len(gui))
 	for i := range ws {
-		ws[i] = []Widget{widgets[i]}
+		ws[i] = []Widget{gui[i]}
 	}
 	return &table{<-newId, ws}
 }
 
-func Row(widgets ...Widget) Widget {
-	return &table{<-newId, [][]Widget{widgets}}
+func Row(gui ...Widget) Widget {
+	return &table{<-newId, [][]Widget{gui}}
 }
 
 /////////////////////////////////////////

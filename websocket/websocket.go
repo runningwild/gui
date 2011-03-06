@@ -1,4 +1,4 @@
-//target:github.com/droundy/widgets/websocket
+//target:github.com/droundy/gui/websocket
 
 package websocket
 

@@ -1,4 +1,4 @@
-package widgets
+package gui
 
 
 type Widget interface {
