@@ -94,6 +94,7 @@ func skeletonpage(req *http.Request) string {
 	return `<!DOCTYPE HTML>
 <html>
 <head>
+<link href="/style.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 
 // Define helper cookie functions:
