@@ -95,7 +95,7 @@ func main() {
 		return radio.HandleChange()
 	})
 
-	err := gui.Run(
+	err := gui.Run(12346,
 		gui.Column(
 		iscool,
 		testing_checkbox,

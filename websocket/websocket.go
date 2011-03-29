@@ -74,19 +74,23 @@ func HandleSeparate(url string, hh func() Handler) {
 
 // Run handles the case where you want each user should have the
 // same session which will look identical.
-func Run(url string, handler Handler) os.Error {
+func Run(url string, port int, handler Handler) os.Error {
 	Handle("/", handler)
-	return http.ListenAndServe(":12345", nil);
+	return http.ListenAndServe(fmt.Sprint(":", port), nil);
 }
 
 // RunSeparate handles the case where you want each user who logs on
 // to have a separate session with a separate handler.
-func RunSeparate(url string, handler func() Handler) os.Error {
+func RunSeparate(url string, port int, handler func() Handler) os.Error {
 	HandleSeparate("/", handler)
-	return http.ListenAndServe(":12345", nil);
+	return http.ListenAndServe(fmt.Sprint(":", port), nil);
 }
 
 func skeletonpage(req *http.Request) string {
+	wsurl := *req.URL
+	wsurl.Host = req.Host
+	wsurl.Scheme = "ws" + req.URL.Scheme
+	wsurl.Path = "/socket"
 	return `<!DOCTYPE HTML>
 <html>
 <head>
@@ -123,7 +127,7 @@ if (! "WebSocket" in window) {
 }
 
 // Let us open a web socket
-var ws = new WebSocket("ws://localhost:12345` + path.Join(req.URL.Path,"socket") + `");
+var ws = new WebSocket("` + wsurl.String() + `");
 function say(txt) {
    ws.send(txt + '\n')
 };

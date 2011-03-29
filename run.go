@@ -10,14 +10,14 @@ import (
 // This file implements the code to actually interface with
 // websockets.
 
-func RunSeparate(w func() Widget) os.Error {
-	return websocket.RunSeparate("/", func() websocket.Handler {
+func RunSeparate(port int, w func() Widget) os.Error {
+	return websocket.RunSeparate("/", port, func() websocket.Handler {
 		return &widgetwrapper{w(), []func(string){}}
 	})
 }
 
-func Run(w Widget) os.Error {
-	return websocket.Run("/", &widgetwrapper{w, []func(string){}})
+func Run(port int, w Widget) os.Error {
+	return websocket.Run("/", port, &widgetwrapper{w, []func(string){}})
 }
 
 
