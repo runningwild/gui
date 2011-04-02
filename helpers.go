@@ -52,6 +52,26 @@ func (o *ChangeHandler) HandleChange() Refresh {
 	return (*o)()
 }
 
+type PathHandler struct {
+	Hook
+	Path string
+}
+func (o *PathHandler) SetPath(p string) {
+	o.Path = p
+}
+func (o *PathHandler) GetPath() string {
+	return o.Path
+}
+func (o *PathHandler) OnPath(h Hook) {
+	o.Hook = h
+}
+func (o *PathHandler) HandlePath() Refresh {
+	if o.Hook == nil {
+		return StillClean
+	}
+	return o.Hook()
+}
+
 type ClickHandler Hook
 func (o *ClickHandler) OnClick(h Hook) {
 	*o = ClickHandler(h)

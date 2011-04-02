@@ -48,6 +48,14 @@ func (w *widgetwrapper) Handle(evt string) {
 	fmt.Println("Got event:", evt)
 	evts := strings.Split(evt, ":", -1)
 	switch evts[0] {
+	case "path":
+		fmt.Println("Path is", evts[1])
+		if ph,ok := w.w.(HasPath); ok {
+			ph.SetPath(evts[1])
+			ph.HandlePath()
+		} else {
+			fmt.Printf("Type of widget is %T\n", w.w)
+		}
 	case "onclick":
 		clicked := Locate(Id(evts[1]), w.w)
 		if clicked != nil {

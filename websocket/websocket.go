@@ -50,7 +50,7 @@ func HandleSeparate(url string, hh func() Handler) {
 	myh := func(ws *websocket.Conn) {
 		h := hh()
 		h.AddSend(func (p string) { fmt.Fprintln(ws, p) })
-		h.Handle("")
+		fmt.Fprintln(ws, "start")
 		r := bufio.NewReader(ws)
 		for {
 			x, err := r.ReadString('\n')
@@ -91,6 +91,7 @@ func skeletonpage(req *http.Request) string {
 	wsurl.Host = req.Host
 	wsurl.Scheme = "ws" + req.URL.Scheme
 	wsurl.Path = "/socket"
+	fmt.Println("url is", req.URL.Path)
 	return `<!DOCTYPE HTML>
 <html>
 <head>
@@ -146,6 +147,9 @@ ws.onmessage = function (evt) {
          say('cookie is unknown')
        }
        return
+   }
+   if (evt.data.substr(0,5) == 'start') {
+     say('path:` + req.URL.Path + `')
    }
    if (evt.data.substr(0,12) == 'write-cookie') {
       createCookie('WebSocketCookie', evt.data.substr(12), 365);

@@ -32,3 +32,10 @@ type Clickable interface {
 	OnClick(Hook)
 	HandleClick() Refresh
 }
+
+type HasPath interface {
+	SetPath(string)
+	GetPath() string
+	OnPath(Hook)
+	HandlePath() Refresh
+}
