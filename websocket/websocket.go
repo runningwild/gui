@@ -90,7 +90,7 @@ func skeletonpage(req *http.Request) string {
 	wsurl := *req.URL
 	wsurl.Host = req.Host
 	wsurl.Scheme = "ws" + req.URL.Scheme
-	wsurl.Path = path.Join(req.URL.Path, "socket")
+	wsurl.Path = "/socket"
 	return `<!DOCTYPE HTML>
 <html>
 <head>
