@@ -76,8 +76,15 @@ type table struct {
 }
 func (t *table) Private__html() string {
 	out := "<table>\n"
-	for _,r := range t.ws {
-		out += "  <tr>\n"
+	for i,r := range t.ws {
+		class := "even"
+		switch {
+		case i == 0:
+			class = "even first"
+		case i & 1 == 1:
+			class = "odd"
+		}
+		out += `  <tr class="`+ class + `">` + "\n"
 		for _,w := range r {
 			out += "    <td>" + w.Private__html() + "</td>\n"
 		}

@@ -3,5 +3,6 @@
 demo
 server
 benchmark
+example/example
 _obj
 bin/*
