@@ -20,6 +20,11 @@ func Run(port int, w Widget) os.Error {
 	return websocket.Run("/", port, &widgetwrapper{w, []func(string){}})
 }
 
+func HandleSeparate(page string, w func() Widget) {
+	websocket.HandleSeparate(page, func() websocket.Handler {
+		return &widgetwrapper{w(), []func(string){}}
+	})
+}
 
 func Locate(id Id, w Widget) Widget {
 	if id == w.Private__getId() {
