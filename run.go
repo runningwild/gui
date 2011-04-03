@@ -51,7 +51,6 @@ func (w *widgetwrapper) Handle(evt string) {
 	case "path":
 		if ph,ok := w.w.(HasPath); ok {
 			ph.SetPath(evts[1])
-			ph.HandlePath()
 		} else {
 			fmt.Printf("Type of non-HasPath widget is %T\n", w.w)
 		}
