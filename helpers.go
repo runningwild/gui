@@ -37,7 +37,7 @@ func (w *CopyWidget) Private__getId() Id {
 func (w *CopyWidget) Private__getChildren() []Widget {
 	return w.Widget.Private__getChildren()
 }
-func (w *CopyWidget) Private__html() string {
+func (w *CopyWidget) Private__html() (string, []extraCommand) {
 	return w.Widget.Private__html()
 }
 
@@ -52,21 +52,40 @@ func (o *ChangeHandler) HandleChange() Refresh {
 	return (*o)()
 }
 
-type PathHandler struct {
+func MakePathHandler(w Widget) PathHandler {
+	return &pathHandler{ w, nil, "", false }
+}
+type pathHandler struct {
+	Widget
 	Hook
 	Path string
+	isChanged bool
 }
-func (o *PathHandler) SetPath(p string) Refresh {
+func (o *pathHandler) Private__html() (string, []extraCommand) {
+	html, ec := o.Widget.Private__html()
+	if o.isChanged {
+		o.isChanged = false
+		ec = append(ec, extraCommand("setpath " + o.Path))
+	}
+	return html, ec
+}
+func (o *pathHandler) SetWidget(w Widget) {
+	o.Widget = w
+}
+func (o *pathHandler) SetPath(p string) Refresh {
+	if o.Path != p && o.Path != "" {
+		o.isChanged = true
+	}
 	o.Path = p
 	if o.Hook == nil {
 		return StillClean
 	}
 	return o.Hook()
 }
-func (o *PathHandler) GetPath() string {
+func (o *pathHandler) GetPath() string {
 	return o.Path
 }
-func (o *PathHandler) OnPath(h Hook) {
+func (o *pathHandler) OnPath(h Hook) {
 	o.Hook = h
 }
 

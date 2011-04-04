@@ -150,6 +150,9 @@ ws.onmessage = function (evt) {
    if (evt.data.substr(0,5) == 'start') {
      say('path:` + req.URL.Path + `')
    }
+   if (evt.data.substr(0,8) == 'setpath ') {
+     history.pushState('foobar', 'foobar', evt.data.substr(8));
+   }
    if (evt.data.substr(0,12) == 'write-cookie') {
       createCookie('WebSocketCookie', evt.data.substr(12), 365);
       say('got cookie');

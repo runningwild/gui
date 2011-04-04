@@ -74,8 +74,8 @@ type table struct {
 	Id
 	ws [][]Widget
 }
-func (t *table) Private__html() string {
-	out := "<table>\n"
+func (t *table) Private__html() (html string, extra []extraCommand) {
+	html = "<table>\n"
 	for i,r := range t.ws {
 		class := "even"
 		switch {
@@ -84,14 +84,16 @@ func (t *table) Private__html() string {
 		case i & 1 == 1:
 			class = "odd"
 		}
-		out += `  <tr class="`+ class + `">` + "\n"
+		html += `  <tr class="`+ class + `">` + "\n"
 		for _,w := range r {
-			out += "    <td>" + w.Private__html() + "</td>\n"
+			whtml, wextra := w.Private__html()
+			extra = append(extra, wextra...)
+			html += "    <td>" + whtml + "</td>\n"
 		}
-		out += "  </tr>\n"
+		html += "  </tr>\n"
 	}
-	out += "</table>\n"
-	return out
+	html += "</table>\n"
+	return
 }
 func (t *table) Private__getChildren() []Widget {
 	out := []Widget{}
@@ -106,9 +108,9 @@ type text struct {
 	string
 	ClickHandler
 }
-func (dat *text) Private__html() string {
+func (dat *text) Private__html() (string, []extraCommand) {
 	return `<span onclick="say('onclick:` + string(dat.Private__getId()) + ":" +
-		dat.GetString() + `')">` + html.EscapeString(dat.string) + `</span>`
+		dat.GetString() + `')">` + html.EscapeString(dat.string) + `</span>`, nil
 }
 func (b *text) GetString() string {
 	return b.string
@@ -121,22 +123,20 @@ type edittext struct {
 	text
 	ChangeHandler
 }
-func (dat *edittext) Private__html() string {
+func (dat *edittext) Private__html() (string, []extraCommand) {
 	h := `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetString() +
 		`:' + this.value)" value="` + html.EscapeString(dat.text.GetString()) + `" />`
 	//fmt.Println(h)
-	return h
-	return `<input type="text" onchange="say('onchange:` + string(dat.Private__getId()) + ":" + dat.GetString() +
-		`:' + this.value)" value="` + dat.text.Private__html() + `" />`
+	return h, nil
 }
 
 type button struct {
 	text
 	ClickHandler
 }
-func (dat *button) Private__html() string {
+func (dat *button) Private__html() (string, []extraCommand) {
 	return `<input type="submit" onclick="say('onclick:` + string(dat.Private__getId()) + ":" + dat.GetString() + `')" value="` +
-		html.EscapeString(dat.GetString()) + `" />`
+		html.EscapeString(dat.GetString()) + `" />`, nil
 }
 
 type checkbox struct {
@@ -144,14 +144,14 @@ type checkbox struct {
 	BoolValue
 	ChangeHandler
 }
-func (dat *checkbox) Private__html() string {
+func (dat *checkbox) Private__html() (string, []extraCommand) {
 	checked := ""
 	if dat.GetBool() {
 		checked = "checked='checked' "
 	}
 	h := `<input type="checkbox" onchange="say('onchange:` + string(dat.Id) + `')" ` + checked + `" />`
 	//fmt.Println(h)
-	return h
+	return h, nil
 }
 
 func RadioButton(v string) interface { Widget; Changeable; Bool; String } {
@@ -173,7 +173,7 @@ type radiobutton struct {
 	ChangeHandler
 	ClickHandler
 }
-func (dat *radiobutton) Private__html() string {
+func (dat *radiobutton) Private__html() (string, []extraCommand) {
 	checked := ""
 	if dat.GetBool() {
 		checked = " checked='checked' "
@@ -181,7 +181,7 @@ func (dat *radiobutton) Private__html() string {
 	return `<input type="radio" onchange="say('onchange:` + string(dat.Private__getId()) + `')" value="` +
 		html.EscapeString(dat.GetString()) + `"` + checked +
 		`/><span onclick="say('onclick:` + string(dat.Private__getId()) + ":" +
-		dat.GetString() + `')">` + html.EscapeString(dat.string) + `</span>`
+		dat.GetString() + `')">` + html.EscapeString(dat.string) + `</span>`, nil
 }
 
 func RadioGroup(butts... interface{ Changeable; Bool; String }) interface { String; Changeable } {
@@ -261,7 +261,7 @@ type menu struct {
 	ChangeHandler
 }
 
-func (m *menu) Private__html() string {
+func (m *menu) Private__html() (string, []extraCommand) {
 	out := `<select onchange="say('onchange:` + string(m.Private__getId()) + ":" + m.GetString() +
 		`:' + this.value)" value="` + html.EscapeString(m.GetString()) + `" />`
 	for i,v := range m.options {
@@ -271,7 +271,7 @@ func (m *menu) Private__html() string {
 			out += "\n<option value=\"" + v + `">` + v + "</option>"
 		}
 	}
-	return out + "\n</select>"
+	return out + "\n</select>", nil
 }
 
 func (m *menu) GetString() string {

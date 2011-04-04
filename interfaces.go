@@ -1,8 +1,9 @@
 package gui
 
+type extraCommand string
 
 type Widget interface {
-	Private__html() string
+	Private__html() (html string, extra_commands []extraCommand)
 	Private__getId() Id
 	Private__getChildren() []Widget
 }
@@ -33,7 +34,9 @@ type Clickable interface {
 	HandleClick() Refresh
 }
 
-type HasPath interface {
+type PathHandler interface {
+	Widget
+	SetWidget(Widget)
 	SetPath(string) Refresh
 	GetPath() string
 	OnPath(Hook)

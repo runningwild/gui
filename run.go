@@ -49,7 +49,7 @@ func (w *widgetwrapper) Handle(evt string) {
 	evts := strings.Split(evt, ":", -1)
 	switch evts[0] {
 	case "path":
-		if ph,ok := w.w.(HasPath); ok {
+		if ph,ok := w.w.(PathHandler); ok {
 			ph.SetPath(evts[1])
 		} else {
 			fmt.Printf("Type of non-HasPath widget is %T\n", w.w)
@@ -102,8 +102,12 @@ func (w *widgetwrapper) Handle(evt string) {
 	// 	return
 	// }
 	out := `<h3> Event is ` + evt + "</h3>\n"
-	out += w.w.Private__html()
+	html, ecs := w.w.Private__html()
+	out += html
 	for _,send := range w.sends {
+		for _,ec := range ecs {
+			send(string(ec))
+		}
 		send(out)
 	}
 }
