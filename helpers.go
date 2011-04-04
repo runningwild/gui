@@ -82,6 +82,12 @@ func (o *pathHandler) SetPath(p string) Refresh {
 	}
 	return o.Hook()
 }
+func (o *pathHandler) pathChangedTo(p string) {
+	o.Path = p
+	if o.Hook != nil {
+		o.Hook()
+	}
+}
 func (o *pathHandler) GetPath() string {
 	return o.Path
 }

@@ -3,6 +3,7 @@ package gui
 import (
 	"os"
 	"fmt"
+	"http"
 	"strings"
 	"github.com/droundy/gui/websocket"
 )
@@ -50,7 +51,14 @@ func (w *widgetwrapper) Handle(evt string) {
 	switch evts[0] {
 	case "path":
 		if ph,ok := w.w.(PathHandler); ok {
-			ph.SetPath(evts[1])
+			rawurl := evt[len(evts[0])+1:]
+			url, err := http.ParseRequestURL(rawurl)
+			if err == nil {
+				rawurl = url.Path
+			} else {
+				fmt.Println("got bad url:", err)
+			}
+			ph.pathChangedTo(rawurl)
 		} else {
 			fmt.Printf("Type of non-HasPath widget is %T\n", w.w)
 		}
@@ -106,6 +114,7 @@ func (w *widgetwrapper) Handle(evt string) {
 	out += html
 	for _,send := range w.sends {
 		for _,ec := range ecs {
+			fmt.Println("sending extra command:", ec)
 			send(string(ec))
 		}
 		send(out)

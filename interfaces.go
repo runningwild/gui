@@ -38,6 +38,7 @@ type PathHandler interface {
 	Widget
 	SetWidget(Widget)
 	SetPath(string) Refresh
+	pathChangedTo(string) // This handles case where user hits back button
 	GetPath() string
 	OnPath(Hook)
 }
