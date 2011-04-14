@@ -44,6 +44,10 @@ func Column(gui ...Widget) Widget {
 	return &table{<-newId, ws}
 }
 
+func Paragraphs(gui ...Widget) Widget {
+	return &paragraphs{<-newId, gui}
+}
+
 func Row(gui ...Widget) Widget {
 	return &table{<-newId, [][]Widget{gui}}
 }
@@ -69,6 +73,22 @@ func (r Refresh) String() string {
 ///////////////////////////////////////
 // Everything below this is private! //
 ///////////////////////////////////////
+
+type paragraphs struct {
+	Id
+	ws []Widget
+}
+func (ps *paragraphs) Private__html() (html string, extra []extraCommand) {
+	for _,w := range ps.ws {
+		whtml, e := w.Private__html()
+		extra = append(extra, e...)
+		html += "<p>" + whtml + "</p>\n"
+	}
+	return
+}
+func (t *paragraphs) Private__getChildren() []Widget {
+	return t.ws
+}
 
 type table struct {
 	Id

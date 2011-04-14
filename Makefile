@@ -3,7 +3,7 @@
 
 include $(GOROOT)/src/Make.inc
 
-TARG=github.com/droundy/widgets
+TARG=github.com/droundy/gui
 GOFILES=\
 	helpers.go\
 	interfaces.go\
