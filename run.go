@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"http"
 	"strings"
-	"github.com/droundy/gui/websocket"
+	"github.com/droundy/widgets/websocket"
 )
 
 // This file implements the code to actually interface with
